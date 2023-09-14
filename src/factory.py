@@ -7,7 +7,8 @@ from src.datasets.arctic_dataset_eval import ArcticDatasetEval
 from src.datasets.tempo_dataset import TempoDataset
 from src.datasets.tempo_inference_dataset import TempoInferenceDataset
 from src.datasets.tempo_inference_dataset_eval import TempoInferenceDatasetEval
-
+from src.datasets.arctic_digit_mano_dataset import ArcticDigitManoDataset
+from src.datasets.arctic_digit_mano_dataset_eval import ArcticDigitManoDatasetEval
 
 def fetch_dataset_eval(args, seq=None):
     if args.method in ["arctic_sf"]:
@@ -16,6 +17,8 @@ def fetch_dataset_eval(args, seq=None):
         DATASET = ArcticDatasetEval
     elif args.method in ["arctic_lstm", "field_lstm"]:
         DATASET = TempoInferenceDatasetEval
+    elif args.method in ["arctic_digit_mano"]:
+        DATASET = ArcticDigitManoDatasetEval
     else:
         assert False
     if seq is not None:
@@ -41,6 +44,11 @@ def fetch_dataset_devel(args, is_train, seq=None):
             DATASET = TempoDataset
         else:
             DATASET = TempoInferenceDataset
+    elif args.method in ["arctic_digit_mano"]:
+        if is_train:
+            DATASET = ArcticDigitManoDataset
+        else:
+            DATASET = ArcticDigitManoDataset
     else:
         assert False
     if seq is not None:
@@ -95,7 +103,7 @@ def fetch_dataloader(args, mode, seq=None):
     if mode == "train":
         reset_all_seeds(args.seed)
         dataset = fetch_dataset_devel(args, is_train=True)
-        if type(dataset) == ArcticDataset:
+        if type(dataset) in [ArcticDataset, ArcticDigitManoDataset]:
             collate_fn = None
         else:
             collate_fn = collate_custom_fn
@@ -113,7 +121,7 @@ def fetch_dataloader(args, mode, seq=None):
             dataset = fetch_dataset_eval(args, seq=seq)
         else:
             dataset = fetch_dataset_devel(args, is_train=False, seq=seq)
-        if type(dataset) in [ArcticDataset, ArcticDatasetEval]:
+        if type(dataset) in [ArcticDataset, ArcticDatasetEval, ArcticDigitManoDataset, ArcticDigitManoDatasetEval]:
             collate_fn = None
         else:
             collate_fn = collate_custom_fn
@@ -137,6 +145,8 @@ def fetch_model(args):
         from src.models.field_sf.wrapper import FieldSFWrapper as Wrapper
     elif args.method in ["field_lstm"]:
         from src.models.field_lstm.wrapper import FieldLSTMWrapper as Wrapper
+    elif args.method in ["arctic_digit_mano"]:
+        from src.models.arctic_digit_mano.wrapper import ArcticDigitManoWrapper as Wrapper
     else:
         assert False, f"Invalid method ({args.method})"
     model = Wrapper(args)

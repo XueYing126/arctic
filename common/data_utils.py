@@ -133,6 +133,47 @@ def generate_patch_image(
     return img_patch, trans, inv_trans
 
 
+def generate_patch_segm(
+    cvimg,
+    bbox,
+    scale,
+    rot,
+    out_shape,
+    interpl_strategy,
+):
+    img = cvimg.copy()
+
+    bb_c_x = float(bbox[0])
+    bb_c_y = float(bbox[1])
+    bb_width = float(bbox[2])
+    bb_height = float(bbox[3])
+
+    trans = gen_trans_from_patch_cv(
+        bb_c_x, bb_c_y, bb_width, bb_height, out_shape[1], out_shape[0], scale, rot
+    )
+
+    # anti-aliasing
+    # blur = cv2.GaussianBlur(img, (gauss_kernel, gauss_kernel), gauss_sigma)
+    blur = img
+    img_patch = cv2.warpAffine(
+        blur, trans, (int(out_shape[1]), int(out_shape[0])), flags=interpl_strategy
+    )
+    img_patch = img_patch.astype(np.float32)
+    inv_trans = gen_trans_from_patch_cv(
+        bb_c_x,
+        bb_c_y,
+        bb_width,
+        bb_height,
+        out_shape[1],
+        out_shape[0],
+        scale,
+        rot,
+        inv=True,
+    )
+
+    return img_patch, trans, inv_trans
+
+
 def augm_params(is_train, flip_prob, noise_factor, rot_factor, scale_factor):
     """Get augmentation parameters."""
     flip = 0  # flipping
@@ -201,6 +242,31 @@ def rgb_processing(is_train, rgb_img, center, bbox_dim, augm_dict, img_res):
     rgb_img[:, :, 1] = np.minimum(255.0, np.maximum(0.0, rgb_img[:, :, 1] * pn[1]))
     rgb_img[:, :, 2] = np.minimum(255.0, np.maximum(0.0, rgb_img[:, :, 2] * pn[2]))
     rgb_img = np.transpose(rgb_img.astype("float32"), (2, 0, 1)) / 255.0
+    return rgb_img
+
+
+def segm_processing(is_train, rgb_img, center, bbox_dim, augm_dict, img_res):
+    rot = augm_dict["rot"]
+    sc = augm_dict["sc"]
+    pn = augm_dict["pn"]
+    scale = sc * bbox_dim
+
+    crop_dim = int(scale * 200)
+    # faster cropping!!
+    rgb_img = generate_patch_segm(
+        rgb_img,
+        [center[0], center[1], crop_dim, crop_dim],
+        1.0,
+        rot,
+        [img_res, img_res],
+        cv2.INTER_NEAREST,
+    )[0]
+
+    # in the rgb image we add pixel noise in a channel-wise manner
+    # rgb_img[:, :, 0] = np.minimum(255.0, np.maximum(0.0, rgb_img[:, :, 0] * pn[0]))
+    # rgb_img[:, :, 1] = np.minimum(255.0, np.maximum(0.0, rgb_img[:, :, 1] * pn[1]))
+    # rgb_img[:, :, 2] = np.minimum(255.0, np.maximum(0.0, rgb_img[:, :, 2] * pn[2]))
+    rgb_img = np.transpose(rgb_img.astype("long"), (2, 0, 1))
     return rgb_img
 
 
