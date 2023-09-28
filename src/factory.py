@@ -17,7 +17,7 @@ def fetch_dataset_eval(args, seq=None):
         DATASET = ArcticDatasetEval
     elif args.method in ["arctic_lstm", "field_lstm"]:
         DATASET = TempoInferenceDatasetEval
-    elif args.method in ["arctic_digit_mano"]:
+    elif args.method in ["arctic_digit_mano", "digit_hrnet", "digit_resnet50"]:
         DATASET = ArcticDigitManoDatasetEval
     else:
         assert False
@@ -44,7 +44,7 @@ def fetch_dataset_devel(args, is_train, seq=None):
             DATASET = TempoDataset
         else:
             DATASET = TempoInferenceDataset
-    elif args.method in ["arctic_digit_mano"]:
+    elif args.method in ["arctic_digit_mano", "digit_hrnet", "digit_resnet50"]:
         if is_train:
             DATASET = ArcticDigitManoDataset
         else:
@@ -147,6 +147,10 @@ def fetch_model(args):
         from src.models.field_lstm.wrapper import FieldLSTMWrapper as Wrapper
     elif args.method in ["arctic_digit_mano"]:
         from src.models.arctic_digit_mano.wrapper import ArcticDigitManoWrapper as Wrapper
+    elif args.method in ["digit_hrnet"]:
+        from src.models.arctic_digit_mano.hrnet_wrapper import ArcticDigitManoWrapper as Wrapper
+    elif args.method in ["digit_resnet50"]:
+        from src.models.arctic_digit_mano.resnet50_wrapper import ArcticDigitManoWrapper as Wrapper
     else:
         assert False, f"Invalid method ({args.method})"
     model = Wrapper(args)
