@@ -9,11 +9,16 @@ We made modifications to the pose estimator. Instead of using the 2.5D represent
 This approach effectively addresses the consistent motion reconstruction task.
 
 
-
-## Obtain Segmentation Mask
+## Getting Started
+### Obtain Segmentation Mask
 
 To obtain the part segmentation mask for ARCTIC data, please follow the instructions in the [render_mano_ih README.md](https://github.com/XueYing126/render_mano_ih).
 
+### Pretrained Backbone
+Download the ImageNet-pretrained backbone HRnet from [here](https://github.com/HRNet/HRNet-Human-Pose-Estimation) and place it under:
+```bash
+./tmp/hrnet_w32-36af842e.pth
+```
 ## Train
 The following code trains the single-frame allocentric DIGIT model with HRNet as backbone. 
 ```bash
