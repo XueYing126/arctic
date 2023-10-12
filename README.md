@@ -12,7 +12,11 @@ This approach effectively addresses the consistent motion reconstruction task.
 ## Getting Started
 ### Obtain Segmentation Mask
 
-To obtain the part segmentation mask for ARCTIC data, please follow the instructions in the [render_mano_ih README.md](https://github.com/XueYing126/render_mano_ih).
+To obtain the part segmentation mask for ARCTIC data, please follow the instructions in the [render_mano_ih README.md](https://github.com/XueYing126/render_mano_ih), and place it under:
+
+```bash
+./data/masks
+```
 
 ### Pretrained Backbone
 Download the ImageNet-pretrained backbone HRnet from [here](https://github.com/HRNet/HRNet-Human-Pose-Estimation) and place it under:
