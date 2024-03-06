@@ -12,7 +12,7 @@ def construct_args():
         "--method",
         type=str,
         default=None,
-        choices=[None, "arctic_sf", "arctic_lstm", "field_sf", "field_lstm"],
+        choices=[None, "arctic_sf", "arctic_lstm", "field_sf", "field_lstm", "arctic_digit_mano", "digit_hrnet", "digit_resnet50"],
     )
     parser.add_argument("--exp_key", type=str, default=None)
     parser.add_argument("--extraction_mode", type=str, default=None)
@@ -22,7 +22,7 @@ def construct_args():
     parser = add_generic_args(parser)
     args = EasyDict(vars(parser.parse_args()))
 
-    if args.method in ["arctic_sf"]:
+    if args.method in ["arctic_sf", "arctic_digit_mano", "digit_hrnet", "digit_resnet50"]:
         import src.parsers.configs.arctic_sf as config
     elif args.method in ["arctic_lstm"]:
         import src.parsers.configs.arctic_lstm as config
